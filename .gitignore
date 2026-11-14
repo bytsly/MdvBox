@@ -12,6 +12,7 @@ captures/
 # 构建产物
 dist/
 *.apk
+!apk/*.apk
 
 # 本地大文件
 Image.png
