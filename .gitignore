@@ -1,0 +1,17 @@
+# Android / Gradle
+*.iml
+.gradle/
+local.properties
+.idea/
+.kotlin/
+build/
+captures/
+.externalNativeBuild
+.cxx
+
+# 构建产物
+dist/
+*.apk
+
+# 本地大文件
+Image.png
