@@ -11,7 +11,6 @@ import java.net.Inet4Address
 import java.net.InetSocketAddress
 import java.net.NetworkInterface
 import java.net.Socket
-import java.nio.charset.Charset
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -102,9 +101,9 @@ object LanScanner {
                 raw.write(buffer, 0, read)
             }
 
-            val text = decodeHtml(raw.toByteArray())
-            val type = detectType(text) ?: return null
-            MmdvmDevice(host = ip, type = type, title = extractTitle(text))
+            val text = HttpText.decode(raw.toByteArray())
+            val type = BoxDetector.classify(text)?.label ?: return null
+            MmdvmDevice(host = ip, type = type, title = HttpText.titleOf(text))
         } catch (t: Throwable) {
             null
         } finally {
@@ -112,46 +111,4 @@ object LanScanner {
         }
     }
 
-    private val headerCharsetRegex =
-        Regex("content-type:[^\\r\\n]*?charset=[\"']?([\\w\\-]+)", RegexOption.IGNORE_CASE)
-    private val metaCharsetRegex =
-        Regex("<meta[^>]+charset=[\"']?([\\w\\-]+)", RegexOption.IGNORE_CASE)
-
-    /**
-     * 按 HTTP 头或 meta 声明解码；未声明时优先 UTF-8，出现非法字节再退回 GBK。
-     */
-    private fun decodeHtml(bytes: ByteArray): String {
-        val head = String(bytes, 0, minOf(bytes.size, 2048), Charsets.ISO_8859_1)
-        val declared = (headerCharsetRegex.find(head)?.groupValues?.getOrNull(1)
-            ?: metaCharsetRegex.find(head)?.groupValues?.getOrNull(1))
-            ?.let { name -> runCatching { Charset.forName(name) }.getOrNull() }
-        if (declared != null) return String(bytes, declared)
-
-        val utf8 = String(bytes, Charsets.UTF_8)
-        return if ('\uFFFD' in utf8) {
-            runCatching { String(bytes, Charset.forName("GBK")) }.getOrDefault(utf8)
-        } else {
-            utf8
-        }
-    }
-
-    private fun detectType(html: String): String? {
-        val text = html.lowercase()
-        return when {
-            text.contains("wpsd") -> "WPSD"
-            text.contains("pi-star") || text.contains("pistar") -> "Pi-Star"
-            text.contains("j-star") || text.contains("jstar") -> "J-STAR"
-            text.contains("mmdvm") -> "MMDVM"
-            else -> null
-        }
-    }
-
-    private val titleRegex = Regex("<title[^>]*>(.*?)</title>", RegexOption.IGNORE_CASE)
-
-    private fun extractTitle(html: String): String? =
-        titleRegex.find(html)
-            ?.groupValues
-            ?.getOrNull(1)
-            ?.trim()
-            ?.takeIf { it.isNotEmpty() }
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MMDVM 盒子</string>
-    <string name="app_version">版本 1.06</string>
+    <string name="app_name">MDVBOX</string>
+    <string name="app_version">版本 1.44</string>
     <string name="developer">开发者：BH2VLF</string>
     <string name="copyright">© 2026 BH2VLF 版权所有</string>
 </resources>

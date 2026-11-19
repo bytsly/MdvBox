@@ -5,7 +5,7 @@ plugins {
 }
 
 // 每次改动递增 0.01，同时用于 APK 文件名
-val appVersionName = "1.06"
+val appVersionName = "1.44"
 
 android {
     namespace = "com.example.mmdvm"
@@ -15,7 +15,7 @@ android {
         applicationId = "com.example.mmdvm"
         minSdk = 29
         targetSdk = 35
-        versionCode = 11
+        versionCode = 48
         versionName = appVersionName
     }
 
@@ -60,13 +60,13 @@ dependencies {
 }
 
 /**
- * 输出带版本号的 APK：dist/MMDVM盒子_v1.01.apk
+ * 输出带版本号的 APK：apk/MMDVM盒子_v1.10.apk
  */
 tasks.register("exportApk", org.gradle.api.tasks.Copy::class) {
     dependsOn("assembleDebug")
     from(layout.buildDirectory.dir("outputs/apk/debug")) {
         include("app-debug.apk")
     }
-    into(rootProject.layout.projectDirectory.dir("dist"))
-    rename { "MMDVM盒子_v$appVersionName.apk" }
+    into(rootProject.layout.projectDirectory.dir("apk"))
+    rename { "MDVBOX_v$appVersionName.apk" }
 }
